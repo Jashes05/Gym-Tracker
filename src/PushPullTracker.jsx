@@ -1,8 +1,4 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from "react";
 
 const workoutPlan = {
   Monday: [
@@ -80,69 +76,65 @@ export default function PushPullTracker() {
     return () => clearInterval(timer);
   }, [startTime]);
 
-  const toggleSet = (day, exerciseIndex, setIndex) => {
-    const key = `${day}-${exerciseIndex}-${setIndex}`;
-    setProgress((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleSet = (day, i, j) => {
+    const key = `${day}-${i}-${j}`;
+    setProgress(prev => ({ ...prev, [key]: !prev[key] }));
     if (!startTime) setStartTime(Date.now());
   };
 
   const updateReps = (day, index, value) => {
     const key = `${day}-${index}`;
-    setReps((prev) => ({ ...prev, [key]: value }));
+    setReps(prev => ({ ...prev, [key]: value }));
   };
 
   const updateWeights = (day, index, value) => {
     const key = `${day}-${index}`;
-    setWeights((prev) => ({ ...prev, [key]: value }));
+    setWeights(prev => ({ ...prev, [key]: value }));
   };
 
   const totalSets = Object.values(workoutPlan).flat().reduce((acc, cur) => acc + cur.sets, 0);
   const completedSets = Object.values(progress).filter(Boolean).length;
 
   return (
-    <div className="p-4 grid gap-6 bg-black text-white min-h-screen">
-      <div className="text-sm mb-4">
+    <div style={{ backgroundColor: 'black', color: 'white', padding: '1rem', minHeight: '100vh' }}>
+      <div style={{ marginBottom: '1rem' }}>
         <div>⏱️ Time Elapsed: {Math.floor(elapsedTime / 60)}m {elapsedTime % 60}s</div>
         <div>✅ Completed Sets: {completedSets} / {totalSets}</div>
       </div>
       {Object.entries(workoutPlan).map(([day, exercises]) => (
-        <Card key={day} className="bg-gray-900 text-white">
-          <CardContent>
-            <h2 className="text-xl font-bold mb-2">{day} Workout</h2>
-            {exercises.map((exercise, i) => (
-              <div key={i} className="mb-4">
-                <div className="font-medium">{exercise.name}</div>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {Array.from({ length: exercise.sets }).map((_, j) => (
-                    <div key={j} className="flex items-center gap-1">
-                      <Checkbox
-                        checked={progress[`${day}-${i}-${j}`] || false}
-                        onCheckedChange={() => toggleSet(day, i, j)}
-                      />
-                      <span className="text-xs">S{j + 1}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <Input
-                    type="number"
-                    placeholder="Reps"
-                    className="w-20 text-black"
-                    value={reps[`${day}-${i}`] || ""}
-                    onChange={(e) => updateReps(day, i, e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Weight (kg)"
-                    className="w-28 text-black"
-                    value={weights[`${day}-${i}`] || ""}
-                    onChange={(e) => updateWeights(day, i, e.target.value)}
-                  />
-                </div>
+        <div key={day} style={{ marginBottom: '2rem' }}>
+          <h2>{day} Workout</h2>
+          {exercises.map((ex, i) => (
+            <div key={i} style={{ marginBottom: '1rem' }}>
+              <div style={{ fontWeight: 'bold' }}>{ex.name}</div>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                {Array.from({ length: ex.sets }).map((_, j) => (
+                  <label key={j}>
+                    <input
+                      type="checkbox"
+                      checked={progress[`${day}-${i}-${j}`] || false}
+                      onChange={() => toggleSet(day, i, j)}
+                    /> S{j + 1}
+                  </label>
+                ))}
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <input
+                  type="number"
+                  placeholder="Reps"
+                  value={reps[`${day}-${i}`] || ""}
+                  onChange={(e) => updateReps(day, i, e.target.value)}
+                />
+                <input
+                  type="number"
+                  placeholder="Weight (kg)"
+                  value={weights[`${day}-${i}`] || ""}
+                  onChange={(e) => updateWeights(day, i, e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       ))}
     </div>
   );
